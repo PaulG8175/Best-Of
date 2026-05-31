@@ -1,99 +1,111 @@
-# 🏆 PRB222 — Option sur Best Of (Maximum de Panier)
+# Best-Of Option Pricing via Monte Carlo
 
-Projet numérique portant sur la valorisation d'options sur le **maximum d'un panier d'actifs** (Best Of) dans le modèle de Black-Scholes, par technique de Monte Carlo avec réduction de variance.
+> 🚀 **Personal project**, done independently outside coursework.
 
----
-
-## 🎯 Objectif
-
-Calculer et analyser trois types de produits sur Best Of :
-
-| Produit | Payoff |
-|---------|--------|
-| **Forward Best Of** | `max(Si(T)) − K` |
-| **Put Best Of** | `(K − max(Si(T)))+` |
-| **Call Best Of** | `(max(Si(T)) − K)+` |
-
-Avec les méthodes : MC standard, **variables antithétiques**, et **variable de contrôle**.
+Pricing of **Best-Of options** (options on the maximum of a basket of assets) in a 3-dimensional Black-Scholes model, with variance reduction techniques and control variates.
 
 ---
 
-## 📂 Structure
+## Products
 
-```
-├── best_of_commented.py   # Script principal commenté
-```
+### Forward Best-Of
+$$P^1 = e^{-rT} \mathbb{E}\left[\max_{i=1..3} S_i(T) - K\right]$$
 
----
+### Put Best-Of
+$$P^2 = e^{-rT} \mathbb{E}\left[\left(K - \max_{i=1..3} S_i(T)\right)^+\right]$$
 
-## ⚙️ Modèle
+### Call Best-Of
+$$P^3 = e^{-rT} \mathbb{E}\left[\left(\max_{i=1..3} S_i(T) - K\right)^+\right]$$
 
-Black-Scholes en dimension 3, matrice de corrélation équicorrélée :
-
-```
-Γ = [[1, ρ, ρ],
-     [ρ, 1, ρ],
-     [ρ, ρ, 1]]    avec ρ ∈ ]-0.5, 1[
-```
-
-Simulation via **décomposition de Cholesky** : `W(T) = √T · ε @ L^T`, avec `ε ~ N(0, I3)`.
+**Put-Call-Forward parity:**
+$$P^1 = P^3 - P^2$$
 
 ---
 
-## ⚙️ Paramètres
+## Model
 
-| Paramètre | Valeur |
-|-----------|--------|
-| `Si,0` | 1 |
-| `σi` | 0.30 |
-| `ρ` | 0.3 (sauf Q6, Q10) |
-| `K` | 1 (sauf Q10) |
+3-dimensional Black-Scholes with equicorrelated Brownian motions:
+
+$$dS_i(t) = S_i(t)\left(r\,dt + \sigma_i\,dW_i(t)\right)$$
+
+$$\Gamma = \begin{pmatrix} 1 & \rho & \rho \\ \rho & 1 & \rho \\ \rho & \rho & 1 \end{pmatrix}, \quad \rho \in \left]-\tfrac{1}{2}, 1\right[$$
+
+Correlated Brownian motions simulated via **Cholesky decomposition**: $W(T) = \sqrt{T}\,\varepsilon\, L^\top$ with $\varepsilon \sim \mathcal{N}(0, I_3)$.
+
+---
+
+## Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| `Sᵢ,₀` | 1 |
+| `σᵢ` | 0.30 |
+| `ρ` | 0.3 |
+| `K` | 1 |
 | `r` | 0.02 |
-| `T` | 1.5 ans |
+| `T` | 1.5 years |
 
-> Les simulations utilisent uniquement des lois **Uniformes** via la méthode de Box-Muller.
+> All simulations use **Uniform random variables only** via Box-Muller transform.
 
 ---
 
-## 📋 Questions traitées
+## Variance reduction techniques
 
-| Q | Contenu |
+### Antithetic variables
+For each draw $\varepsilon$, also evaluate at $-\varepsilon$:
+$$\hat{P} = \frac{1}{2}\left(f(\varepsilon) + f(-\varepsilon)\right)$$
+
+### Control variate (Q12)
+Use the vanilla European put on $S_1$ as a control variate (known analytically):
+$$Z = X - \hat{\beta}(Y - \mathbb{E}[Y]), \quad \hat{\beta} = \frac{\text{Cov}(X,Y)}{\text{Var}(Y)}$$
+
+---
+
+## Key results
+
+**Effect of ρ on P²:**
+
+- As $\rho \to 1$: all assets become identical → $P^2$ converges to the vanilla put price
+- As $\rho \to -1/2$: assets are near-independent → the maximum is large → $P^2 \approx 0$
+
+**Effect of N (number of underlyings) on P^{2,N}:**
+
+- $\rho = 0$: independent assets → maximum grows with $N$ → $P^{2,N} \to 0$
+- $\rho = 1$: all assets identical regardless of $N$ → $P^{2,N}$ constant
+
+**Upper bound:**
+$$P^2 \leq \min_i P^{E,i}$$
+since $(K - \max S_i)^+ \leq (K - S_i)^+$ for all $i$.
+
+---
+
+## Topics covered
+
+| Q | Content |
 |---|---------|
-| Q1 | Solution de l'EDS Si(t) |
-| Q2 | Minoration de P1 et cas d'égalité (σ identiques, ρ=1) |
-| Q3 | Simulation de W(T) + MC standard pour P1 |
-| Q4 | Variables antithétiques pour P1 |
-| Q5 | Variances empiriques et IC à 90% des deux estimateurs |
-| Q6 | P1 en fonction de ρ ∈ ]−0.5, 1[ |
-| Q7 | Put européen vanille PE,i (formule analytique B&S) |
-| Q8 | Majorant de P2 par les puts vanilles |
-| Q9 | MC antithétique pour P2, comparaison ρ=0.3 vs ρ=1 |
-| Q10 | P2 en fonction de ρ pour K ∈ {1, 1.2, 1.5} |
-| Q11 | P2 vs PE,i en fonction de S1,0 ∈ [0, 2] |
-| Q12 | Variable de contrôle (put sur S1) pour P2 |
-| Q13 | P2,N en fonction de N ∈ {1,3,10,25} et ρ ∈ {0, 0.5, 1} |
-| Q14 | Relation Forward = Call − Put sur Best Of |
+| Q3 | MC standard estimator for P¹ |
+| Q4 | Antithetic variables for P¹ |
+| Q5 | Empirical variances and 90% confidence intervals |
+| Q6 | P¹ as a function of ρ |
+| Q7 | Analytical European put PE,i (Black-Scholes) |
+| Q8 | Upper bound for P² |
+| Q9 | MC antithetic for P², comparison ρ=0.3 vs ρ=1 |
+| Q10 | P² vs ρ for K ∈ {1, 1.2, 1.5} |
+| Q11 | P² vs PE,i as a function of S₁,₀ |
+| Q12 | Control variate estimator for P² |
+| Q13 | P²,N vs N ∈ {1,3,10,25} for ρ ∈ {0, 0.5, 1} |
+| Q14 | Forward = Call − Put parity |
 
 ---
 
-## 🔑 Idées clés
-
-- **ρ → 1** : les sous-jacents deviennent identiques → Forward → 0 (ATM), Put → put vanille
-- **N grand, ρ=0** : le max d'actifs indépendants est très élevé → put Best Of quasi nul
-- **Variable de contrôle** : le put sur S1 est corrélé au put Best Of → réduction de variance efficace
-
----
-
-## 🚀 Lancement
+## Run
 
 ```bash
 pip install numpy matplotlib
 python best_of_commented.py
 ```
 
----
+## Dependencies
 
-## 📦 Dépendances
+`numpy` · `matplotlib`
 
-- `numpy`
-- `matplotlib`
