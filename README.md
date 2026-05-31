@@ -28,7 +28,16 @@ $$P^1 = P^3 - P^2$$
 
 $$dS_i(t) = S_i(t)\left(r\,dt + \sigma_i\,dW_i(t)\right)$$
 
-$$\Gamma = \begin{pmatrix} 1 & \rho & \rho \\ \rho & 1 & \rho \\ \rho & \rho & 1 \end{pmatrix}, \quad \rho \in \left]-\tfrac{1}{2}, 1\right[$$
+$$
+\Gamma=
+\begin{bmatrix}
+1 & \rho & \rho \\
+\rho & 1 & \rho \\
+\rho & \rho & 1
+\end{bmatrix},
+\qquad
+\rho\in\left(-\frac12,1\right)
+$$
 
 Correlated Brownian motions simulated via **Cholesky decomposition**: $W(T) = \sqrt{T}\,\varepsilon\, L^\top$ with $\varepsilon \sim \mathcal{N}(0, I_3)$.
 
