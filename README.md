@@ -1,6 +1,6 @@
 # Best-Of Option Pricing via Monte Carlo
 
-> 🚀 **Personal project**, done independently outside coursework.
+> **Personal project**, done independently outside coursework.
 
 Pricing of **Best-Of options** (options on the maximum of a basket of assets) in a 3-dimensional Black-Scholes model, with variance reduction techniques and control variates.
 
@@ -26,7 +26,7 @@ $$P^1 = P^3 - P^2$$
 
 3-dimensional Black-Scholes with equicorrelated Brownian motions:
 
-$$dS_i(t) = S_i(t)\left(r\,dt + \sigma_i\,dW_i(t)\right)$$
+$$dS_i(t) = S_i(t)\left(r\*dt + \sigma_i\*dW_i(t)\right)$$
 
 $$
 \Gamma=
@@ -39,7 +39,7 @@ $$
 \rho\in\left(-\frac12,1\right)
 $$
 
-Correlated Brownian motions simulated via **Cholesky decomposition**: $W(T) = \sqrt{T}\,\varepsilon\, L^\top$ with $\varepsilon \sim \mathcal{N}(0, I_3)$.
+Correlated Brownian motions simulated via **Cholesky decomposition**: $W(T) = \sqrt{T}\,\varepsilon\* L^\top$ with $\varepsilon \sim \mathcal{N}(0, I_3)$.
 
 ---
 
